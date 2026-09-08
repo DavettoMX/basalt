@@ -1,0 +1,15 @@
+## Friendship
+Symmetric junction: (A,B) and (B,A) represent the same friendship.
+Invariant: user_a_id < user_b_id enforced by application to prevent duplicate pairs.
+To query "all friends of user X": WHERE user_a_id = X OR user_b_id = X.
+
+## Message
+Asymmetric relation: sender → recipient is directional. read_at is nullable — NULL means unread.
+Messages are never deleted (soft-delete not implemented); moderation uses Block table.
+
+## Block
+Asymmetric and directional: blocker → blocked. If A blocks B, B can still see A's profile unless B also blocks A.
+Application checks Block table before delivering messages and showing content in feeds.
+
+## User
+bio is nullable — optional profile field. username and email have independent unique constraints.

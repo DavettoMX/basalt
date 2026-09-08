@@ -1,0 +1,8 @@
+{
+  "_comment": "EXAMPLE — merge relevant keys into your opencode config and verify against the current opencode permission schema (https://opencode.ai). Denies the agent reading/editing qa/hidden. The agent SHOULD still read specs/, .basalt/, and decisions.log.",
+  "permission": {
+    "deny": [
+      { "path": "qa/hidden/**", "tools": ["read", "edit", "write"] }
+    ]
+  }
+}

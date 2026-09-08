@@ -1,0 +1,56 @@
+@v1
+
++Department
+ department_id i!
+ name s @unique
+ building s
+ budget f
+
++Instructor
+ instructor_id i!
+ name s
+ department_id i ->Department.department_id
+ salary f
+ #[department_id]
+
++Student
+ student_id i!
+ name s
+ department_id i ->Department.department_id
+ total_credits i =0
+ ?advisor_id i ->Instructor.instructor_id
+ #[department_id]
+ #[advisor_id]
+
++Course
+ course_id s!
+ title s
+ department_id i ->Department.department_id
+ credits i
+ #[department_id]
+
++Section
+ section_id i!
+ course_id s ->Course.course_id
+ semester s
+ year i
+ ?building s
+ ?room_number s
+ ?time_slot s
+ #[course_id]
+ #[semester,year]
+
++Enrollment
+ id i!
+ student_id i ->Student.student_id
+ section_id i ->Section.section_id
+ ?grade s
+ @unique[student_id,section_id]
+ #[student_id]
+ #[section_id]
+
++Prerequisite
+ id i!
+ course_id s ->Course.course_id
+ prereq_id s ->Course.course_id
+ @unique[course_id,prereq_id]

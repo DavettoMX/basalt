@@ -1,0 +1,6 @@
+## SingerInConcert
+Pure junction table — associates singers with concerts. No business payload beyond the relationship.
+No cascade behavior defined; deleting a Concert or Singer requires manual cleanup or application-level handling.
+
+## Stadium
+highest_attendance and average_attendance are nullable — historical data may not exist for all venues.

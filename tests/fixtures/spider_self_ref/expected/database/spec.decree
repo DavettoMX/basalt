@@ -1,0 +1,29 @@
+@v1
+
++Employee
+ employee_id i!
+ name s
+ email s @unique
+ hire_date t =now
+ salary f
+ ?manager_id i ->Employee.employee_id
+ #[manager_id]
+ #[hire_date]
+
++Department
+ department_id i!
+ name s @unique
+ budget f =0
+ head_id i ->Employee.employee_id
+ #[head_id]
+
++Evaluation
+ evaluation_id i!
+ employee_id i ->Employee.employee_id
+ evaluator_id i ->Employee.employee_id
+ score f
+ ?comments s
+ evaluated_at t =now
+ #[employee_id]
+ #[evaluator_id]
+ #[evaluated_at]

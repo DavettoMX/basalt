@@ -1,0 +1,10 @@
+{
+  "_comment": "EXAMPLE — merge into .claude/settings.local.json (adjust to your Claude Code version). Denies reading/editing/writing qa/hidden so the agent cannot see test internals.",
+  "permissions": {
+    "deny": [
+      "Read(qa/hidden/**)",
+      "Edit(qa/hidden/**)",
+      "Write(qa/hidden/**)"
+    ]
+  }
+}

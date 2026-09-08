@@ -1,0 +1,2 @@
+S hospital 0.1.0 agnostic
+D database [Department,Specialty,Doctor,Patient,Admission,Treatment] (DoctorSpecialty)

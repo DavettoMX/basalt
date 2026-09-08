@@ -1,0 +1,136 @@
+#!/usr/bin/env bash
+# quarry — Basalt's spec-driven + QA scaffolding generator.
+#
+# Generates a project skeleton: specs/ (visible contract), qa/hidden/
+# (agent deny-read verification), and .agent-guards/ (permission deny configs).
+# The architect owns the specs; the agent implements against them; the QA
+# harness runs OUTSIDE the agent and reports per-spec pass/fail verdicts.
+#
+# See quarry/README.md and docs/decisions/008-hidden-verification-qa.md.
+set -euo pipefail
+
+PROG="quarry"
+VERSION="0.1.0"
+
+usage() {
+  cat <<'EOF'
+quarry — spec-driven + QA scaffolding for agentic coding
+
+Usage:
+  quarry init <project-dir> [--lang python] [--force]
+  quarry check <project-dir>
+  quarry --version | --help
+
+init   Generate specs/, qa/, and .agent-guards/ in <project-dir>.
+         --lang python   Target toolchain (python is the only v0 target).
+         --force         Overwrite existing generated files.
+
+check  Verify specs/<domain>/ names match .basalt/<domain>/ decree domains
+       (correlation integrity). Errors on orphan specs or orphan decree domains.
+EOF
+}
+
+die() { echo "$PROG: error: $*" >&2; exit 1; }
+
+# --- helpers -----------------------------------------------------------------
+
+escape_sed() {  # escape & and | for use as the sed replacement string
+  local s="$1"
+  s="${s//&/\\&}"
+  s="${s//|/\\|}"
+  printf '%s' "$s"
+}
+
+copy_template() {
+  # copy_template <src> <dest>   (substitutes __PROJECT_NAME__)
+  local src="$1" dest="$2" rel
+  rel="${dest#"$TARGET"/}"
+  if [ -e "$dest" ] && [ "$FORCE" -ne 1 ]; then
+    echo "skip (exists): $rel" >&2
+    return
+  fi
+  mkdir -p "$(dirname "$dest")"
+  sed "s|__PROJECT_NAME__|$(escape_sed "$NAME")|g" "$src" > "$dest"
+  echo "wrote: $rel" >&2
+}
+
+# --- init --------------------------------------------------------------------
+
+cmd_init() {
+  local dir="" lang="python" force=0
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --lang)   lang="${2:-}"; shift 2 ;;
+      --force)  force=1; shift ;;
+      -h|--help) usage; exit 0 ;;
+      --) shift; [ $# -gt 0 ] && [ -z "$dir" ] && dir="$1"; shift ;;
+      *) [ -z "$dir" ] && { dir="$1"; shift; } || die "unexpected argument: $1" ;;
+    esac
+  done
+  [ -z "$dir" ] && die "missing <project-dir> (use '.' for current dir)"
+  [ "$lang" = "python" ] || die "only --lang python is supported in v0"
+
+  TARGET="$(mkdir -p "$dir" && cd "$dir" && pwd)"
+  NAME="$(basename "$TARGET")"
+  FORCE=$force
+
+  local tmpl; tmpl="$(cd "$(dirname "$0")/templates" && pwd)"
+  [ -d "$tmpl" ] || die "templates not found next to $PROG (expected $(dirname "$0")/templates)"
+
+  echo "quarry init -> $TARGET (name=$NAME)" >&2
+  while IFS= read -r f; do
+    copy_template "$f" "$TARGET/${f#"$tmpl"/}"
+  done < <(find "$tmpl" -type f)
+
+  chmod +x "$TARGET/qa/run_qa.sh" 2>/dev/null || true
+  echo "done. next: edit specs/_template -> specs/<your-domain>/ and run qa/run_qa.sh" >&2
+}
+
+# --- check -------------------------------------------------------------------
+
+cmd_check() {
+  local dir="${1:-}"
+  [ -n "$dir" ] || die "missing <project-dir>"
+  [ -d "$dir" ] || die "not a directory: $dir"
+  python - "$dir" <<'PYEOF'
+import os, sys
+d = sys.argv[1]
+specs_dir = os.path.join(d, "specs")
+basalt_dir = os.path.join(d, ".basalt")
+
+def domains(p):
+    if not os.path.isdir(p):
+        return []
+    return sorted(x for x in os.listdir(p)
+                  if x and not x.startswith(("_", "."))
+                  and os.path.isdir(os.path.join(p, x)))
+
+s = set(domains(specs_dir))
+b = set(domains(basalt_dir))
+ok = True
+for o in sorted(s - b):
+    print(f"orphan spec (no matching .basalt domain): specs/{o}")
+    ok = False
+for o in sorted(b - s):
+    print(f"orphan decree domain (no matching spec): .basalt/{o}")
+    ok = False
+if ok:
+    print(f"check OK — {len(s)} spec(s) ↔ {len(b)} decree domain(s) matched")
+sys.exit(0 if ok else 1)
+PYEOF
+}
+
+# --- dispatch ----------------------------------------------------------------
+
+main() {
+  [ $# -eq 0 ] && { usage; exit 0; }
+  case "$1" in
+    init) shift; cmd_init "$@" ;;
+    check) shift; cmd_check "$@" ;;
+    --version|-V) echo "$PROG $VERSION" ;;
+    --help|-h) usage ;;
+    *) echo "$PROG: unknown command: $1" >&2; usage >&2; exit 1 ;;
+  esac
+}
+
+main "$@"

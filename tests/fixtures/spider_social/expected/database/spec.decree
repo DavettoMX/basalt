@@ -1,0 +1,39 @@
+@v1
+
++User
+ user_id i!
+ username s @unique
+ email s @unique
+ display_name s
+ ?bio s
+ created_at t =now
+ #[created_at]
+
++Friendship
+ id i!
+ user_a_id i ->User.user_id
+ user_b_id i ->User.user_id
+ created_at t =now
+ @unique[user_a_id,user_b_id]
+ #[user_a_id]
+ #[user_b_id]
+
++Message
+ message_id i!
+ sender_id i ->User.user_id
+ recipient_id i ->User.user_id
+ content s
+ sent_at t =now
+ ?read_at t
+ #[sender_id]
+ #[recipient_id]
+ #[sent_at]
+
++Block
+ id i!
+ blocker_id i ->User.user_id
+ blocked_id i ->User.user_id
+ created_at t =now
+ @unique[blocker_id,blocked_id]
+ #[blocker_id]
+ #[blocked_id]

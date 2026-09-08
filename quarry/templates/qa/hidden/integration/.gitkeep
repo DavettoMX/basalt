@@ -1,0 +1,1 @@
+# tests as integration/<domain>/test_*.py — <domain> must match a specs/<domain>/ dir

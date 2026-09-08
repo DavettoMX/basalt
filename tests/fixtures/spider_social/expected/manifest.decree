@@ -1,0 +1,2 @@
+S social_network 0.1.0 agnostic
+D database [User,Friendship,Message,Block]

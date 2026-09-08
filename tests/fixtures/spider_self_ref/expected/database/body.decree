@@ -1,0 +1,11 @@
+## Employee
+Self-referencing hierarchy: manager_id points to another Employee. NULL manager_id indicates top-level (CEO/root).
+Forms an org chart tree — no cycles allowed (enforced by application, not DB constraint).
+
+## Evaluation
+Two FK references to Employee on the same entity: employee_id (subject) and evaluator_id (reviewer).
+An employee cannot evaluate themselves (enforced by application logic, not DB constraint).
+
+## Department
+head_id is a required FK to Employee — every department must have a designated head.
+Circular dependency: Employee belongs to org structure, Department references Employee as head.

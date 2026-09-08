@@ -1,0 +1,33 @@
+@v1
+
++Stadium
+ stadium_id i!
+ name s
+ location s
+ capacity i
+ ?highest_attendance i
+ ?average_attendance f
+
++Singer
+ singer_id i!
+ name s
+ country s
+ age i
+ is_male b =true
+
++Concert
+ concert_id i!
+ concert_name s
+ ?theme s
+ stadium_id i ->Stadium.stadium_id
+ year i
+ #[stadium_id]
+ #[year]
+
++SingerInConcert
+ id i!
+ singer_id i ->Singer.singer_id
+ concert_id i ->Concert.concert_id
+ @unique[singer_id,concert_id]
+ #[singer_id]
+ #[concert_id]

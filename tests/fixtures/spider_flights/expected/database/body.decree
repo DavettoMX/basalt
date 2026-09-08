@@ -1,0 +1,12 @@
+## FlightLeg
+No explicit primary key — identity is the composite (flight_id, leg_number).
+Legs are ordered by leg_number within a flight. Each leg has its own origin/destination pair.
+Two FKs to Airport on the same entity: origin and destination represent the leg's endpoints.
+
+## Flight
+Two FKs to Airport: origin (departure airport) and destination (arrival airport).
+These are semantically distinct — origin ≠ destination is enforced by application logic.
+
+## Reservation
+Composite unique on (passenger_name, flight_id, booking_date) prevents double-booking.
+Seat is nullable — assigned at check-in, not at booking time.

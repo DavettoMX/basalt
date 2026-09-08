@@ -1,0 +1,2 @@
+S university 0.1.0 agnostic
+D database [Department,Instructor,Student,Course,Section,Enrollment,Prerequisite]

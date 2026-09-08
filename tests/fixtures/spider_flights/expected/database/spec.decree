@@ -1,0 +1,46 @@
+@v1
+
++Airport
+ airport_code s!
+ name s
+ city s
+ country s
+
++Airline
+ airline_id i!
+ name s
+ abbreviation s @unique
+ country s
+
++Flight
+ flight_id i!
+ airline_id i ->Airline.airline_id
+ flight_number s
+ origin s ->Airport.airport_code
+ destination s ->Airport.airport_code
+ departure_time t
+ arrival_time t
+ #[airline_id]
+ #[origin]
+ #[destination]
+ #[departure_time,arrival_time]
+
++FlightLeg
+ flight_id i ->Flight.flight_id
+ leg_number i
+ origin s ->Airport.airport_code
+ destination s ->Airport.airport_code
+ departure_time t
+ arrival_time t
+ @unique[flight_id,leg_number]
+ #[flight_id]
+
++Reservation
+ reservation_id i!
+ flight_id i ->Flight.flight_id
+ passenger_name s
+ ?seat s
+ booking_date t =now
+ @unique[passenger_name,flight_id,booking_date]
+ #[flight_id]
+ #[passenger_name]

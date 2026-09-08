@@ -1,0 +1,22 @@
+## Doctor
+Self-referencing hierarchy: supervisor_id points to another Doctor. NULL = department head / unsupervised.
+Forms supervision tree within each department. License number is unique across the system.
+
+## Patient
+No explicit primary key — identified by SSN (unique, sensitive).
+Triple unique constraint (last_name, date_of_birth, ssn) as safety net for deduplication.
+SSN and medical_record_number are sensitive fields — must be masked in logs and API responses.
+
+## DoctorSpecialty
+Pure junction table — associates doctors with specialties. No payload beyond the relationship.
+A doctor can have multiple specialties; a specialty can belong to multiple doctors.
+
+## Admission
+Three FK references: patient (via SSN), admitting doctor, and department.
+Status transitions: active → discharged (set discharged_at). No readmission to same record — new Admission created.
+FK chain: Department → Doctor → Admission (2 hops), extended by Treatment (3 hops total).
+
+## Treatment
+Treating doctor may differ from admitting doctor (specialist consultation).
+completed_at nullable — NULL means treatment is ongoing. Cost nullable — some treatments are bundled.
+Deepest entity in FK chain: Treatment → Admission → Doctor → Department (3 hops to root).

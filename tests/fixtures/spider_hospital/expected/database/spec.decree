@@ -1,0 +1,69 @@
+@v1
+
++Department
+ department_id i!
+ name s @unique
+ building s
+ floor i
+
++Specialty
+ specialty_id i!
+ name s @unique
+ ?description s
+
++Doctor
+ doctor_id i!
+ name s
+ license_number s @unique
+ department_id i ->Department.department_id
+ ?supervisor_id i ->Doctor.doctor_id
+ hired_at t =now
+ #[department_id]
+ #[supervisor_id]
+
+-DoctorSpecialty
+ id i!
+ doctor_id i ->Doctor.doctor_id
+ specialty_id i ->Specialty.specialty_id
+ @unique[doctor_id,specialty_id]
+ #[doctor_id]
+ #[specialty_id]
+
++Patient
+ ssn s @unique @sens
+ first_name s
+ last_name s
+ date_of_birth t
+ ?phone s
+ ?email s
+ medical_record_number s @unique @sens
+ ?insurance_id s
+ @unique[last_name,date_of_birth,ssn]
+ #[last_name,first_name]
+
++Admission
+ admission_id i!
+ patient_ssn s ->Patient.ssn
+ admitting_doctor_id i ->Doctor.doctor_id
+ department_id i ->Department.department_id
+ admitted_at t =now
+ ?discharged_at t
+ diagnosis s
+ status s ="active"
+ #[patient_ssn]
+ #[admitting_doctor_id]
+ #[department_id]
+ #[status]
+
++Treatment
+ treatment_id i!
+ admission_id i ->Admission.admission_id
+ treating_doctor_id i ->Doctor.doctor_id
+ treatment_type s
+ ?description s
+ started_at t =now
+ ?completed_at t
+ ?cost f
+ #[admission_id]
+ #[treating_doctor_id]
+ #[treatment_type]

@@ -1,0 +1,16 @@
+## Enrollment
+Junction between Student and Section. Grade is nullable — assigned after course completion.
+FK chain depth: Department → Course → Section → Enrollment (3 hops from root).
+A student can enroll in a section only once (unique constraint).
+
+## Prerequisite
+Self-referencing junction on Course: both course_id and prereq_id point to Course.
+Forms a DAG — cycles would mean a course requires itself (enforced by application).
+Used to validate enrollment eligibility before admitting students to sections.
+
+## Student
+advisor_id is nullable — not all students have an assigned advisor (e.g., freshmen).
+total_credits is a denormalized count, updated as enrollments with passing grades are recorded.
+
+## Section
+Semester+year composite index for term-based queries. Building/room/time_slot nullable for TBD scheduling.
