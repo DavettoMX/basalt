@@ -49,21 +49,37 @@ The result: fewer agent assumptions, faster navigation (bug tracebacks follow th
 ### Prerequisites
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed and authenticated.
+- macOS or Linux (the installation commands and enforcement hooks rely on a POSIX shell).
 - A project you want to map with Basalt.
 
 ### Step 1 — Clone this repository
 
 ```bash
-git clone git@github.com:DavettoMX/basalt.git
+git clone https://github.com/DavettoMX/basalt.git
 ```
+
+If you have SSH keys configured with GitHub, you can clone with `git@github.com:DavettoMX/basalt.git` instead.
 
 ### Step 2 — Install the skill into Claude Code
 
+Run the following from the cloned repository:
+
 ```bash
-cp -r basalt/skills/basalt ~/.claude/skills/basalt
+cd basalt
+mkdir -p ~/.claude/skills
+rm -rf ~/.claude/skills/basalt
+cp -r skills/basalt ~/.claude/skills/
 ```
 
-Claude Code loads skills from `~/.claude/skills/`. After this step, `/basalt` is available in every Claude Code session.
+Claude Code loads skills from `~/.claude/skills/`. The `rm -rf` guarantees a clean reinstall: `cp -r` alone would nest `skills/basalt` inside an existing `~/.claude/skills/basalt/` directory and leave the old version in place.
+
+> **Warning — about the `rm -rf` command:**
+>
+> The third line deletes **only** the old copy of the Basalt skill (`~/.claude/skills/basalt`), so the new one installs cleanly. It does **not** touch anything else: your other skills, settings, and Claude Code data remain untouched.
+>
+> ⚠️ Do not modify this command — in particular, never add a space or extra characters to the path (e.g. `~/.claude/skills/ basalt` or `~/.claude/skills/*`). A mistyped `rm -rf` can delete more than intended. Copy and paste it exactly as written.
+
+**Verify:** in any Claude Code session, type `/` — `/basalt` should appear in the list of available skills.
 
 ### Step 3 — Open your project in Claude Code
 
